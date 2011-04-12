@@ -1,40 +1,32 @@
 # Package Maintainer: Increment phusion_release to match latest release available
-%define phusion_release	2010.01
-%define ree_prefix /opt/ruby
+%define phusion_release	2011.03
 
 Summary: Ruby Enterprise Edition (Release %{phusion_release})
 Name: ruby-enterprise
 Vendor: Phusion.nl
-Packager: Adam Vollrath <adam@endpoint.com>
+Packager: SHIBATA Hiroshi <shibata.hiroshi@gmail.com>
 Version: 1.8.7
-Release: 2%{?dist}
-License: GPL
-Group: Development/Languages
+Release: 4
+License: GPL 
+Group: Development/Languages 
 URL: http://www.rubyenterpriseedition.com/
-
 Source0: ruby-enterprise-%{version}-%{phusion_release}.tar.gz
-
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{phusion_release}-root-%(%{__id_u} -n)
 BuildRequires: readline readline-devel ncurses ncurses-devel gdbm gdbm-devel glibc-devel autoconf gcc unzip openssl-devel db4-devel byacc
 BuildRequires: ruby
-
-Patch0: net_http_socket_close.patch
-
-%description
+%description 
 Ruby Enterprise Edition is a server-oriented friendly branch of Ruby which includes various enhancements:
 * A copy-on-write friendly garbage collector. Phusion Passenger uses this, in combination with a technique called preforking, to reduce Ruby on Rails applications' memory usage by 33% on average.
 * An improved memory allocator called tcmalloc, which improves performance quite a bit.
 * The ability to tweak garbage collector settings for maximum server performance, and the ability to inspect the garbage collector's state. (RailsBench GC patch)
 * The ability to dump stack traces for all running threads (caller_for_all_threads), making it easier for one to debug multithreaded Ruby web applications.
 
-%prep
+%prep 
 %setup -q -n ruby-enterprise-%{version}-%{phusion_release}
-
-%patch0 -p0
 
 %package rubygems
 Summary: The Ruby standard for packaging ruby libraries
-Version: 1.3.5
+Version: 1.5.2
 License: Ruby or GPL+
 Group: Development/Libraries
 Requires: ruby-enterprise >= 1.8
@@ -42,10 +34,13 @@ Provides: ruby-enterprise(rubygems) = %{version}
 
 %description rubygems
 RubyGems is the Ruby standard for publishing and managing third party
-libraries. This rubygems package is for ruby-enterprise.
+libraries.  This rubygems package is for ruby-enterprise.
 
-%build
-./installer --auto %{ree_prefix} --dont-install-useful-gems --destdir $RPM_BUILD_ROOT --no-dev-docs
+%build 
+# work around bug in "installer"
+mkdir -p $RPM_BUILD_ROOT/usr/local/lib/ruby/gems/1.8/gems
+# run installer
+./installer --auto /usr/local --dont-install-useful-gems --destdir $RPM_BUILD_ROOT
 
 %install
 # no-op
@@ -53,9 +48,11 @@ libraries. This rubygems package is for ruby-enterprise.
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%files
+%files 
 %defattr(-,root,root)
-%{ree_prefix}/
+%{_prefix}/local/bin/*
+%{_prefix}/local/lib/*
+%{_prefix}/local/share/man/man1/ruby.1
 %doc source/ChangeLog
 %doc source/COPYING
 %doc source/LEGAL
@@ -64,30 +61,50 @@ rm -rf $RPM_BUILD_ROOT
 %doc source/README
 %doc source/README.EXT
 %doc source/ToDo
+%doc %{_prefix}/local/share/ri/*
 
 # rubygems
-%exclude %{ree_prefix}/bin/gem
-%exclude %{ree_prefix}/lib/ruby/gems
-%exclude %{ree_prefix}/lib/ruby/site_ruby/1.8/rubygems*
-%exclude %{ree_prefix}/lib/ruby/site_ruby/1.8/ubygems.rb
-%exclude %{ree_prefix}/lib/ruby/site_ruby/1.8/rbconfig
+%exclude %{_prefix}/local/bin/gem
+%exclude %{_prefix}/local/lib/ruby/gems
+%exclude %{_prefix}/local/lib/ruby/site_ruby/1.8/rubygems*
+%exclude %{_prefix}/local/lib/ruby/site_ruby/1.8/ubygems.rb
+%exclude %{_prefix}/local/lib/ruby/site_ruby/1.8/rbconfig
 
 %files rubygems
-%{ree_prefix}/bin/gem
-%{ree_prefix}/lib/ruby/gems
-%{ree_prefix}/lib/ruby/site_ruby/1.8/rubygems*
-%{ree_prefix}/lib/ruby/site_ruby/1.8/ubygems.rb
-%{ree_prefix}/lib/ruby/site_ruby/1.8/rbconfig
+%{_prefix}/local/bin/gem
+%{_prefix}/local/lib/ruby/gems
+%{_prefix}/local/lib/ruby/site_ruby/1.8/rubygems*
+%{_prefix}/local/lib/ruby/site_ruby/1.8/ubygems.rb
+%{_prefix}/local/lib/ruby/site_ruby/1.8/rbconfig
 %doc rubygems/LICENSE.txt
-%doc rubygems/README
+#%doc rubygems/README
 %doc rubygems/GPL.txt
 %doc rubygems/ChangeLog
 
-%changelog
-* Fri May 07 2010 Brad Fults <brad at causes dot com>
+%pre
+# Do not install if /usr/local/bin/ruby exists and is not provided by an RPM
+if ([ -e /usr/local/bin/ruby ] && !(rpm -q --whatprovides /usr/local/bin/ruby >/dev/null)); then
+    exit 1
+else
+    exit 0
+fi
+
+%pre rubygems
+# Do not install if /usr/local/bin/gem exists and is not provided by an RPM
+if ([ -e /usr/local/bin/gem ] && !(rpm -q --whatprovides /usr/local/bin/gem >/dev/null)); then
+    exit 1
+else
+    exit 0
+fi
+
+%changelog 
+* Tue Feb 22 2011 SHIBATA Hiroshi <shibata.hiroshi@gmail.com>
+- Updated for release 2011.02
+- Updated rubygems to 1.5.2
+
+* Mon Apr 19 2010 End Point Corporation <hosting@endpoint.com>
 - Updated for release 2010.01
-- Changed default destination to /opt/ruby via ree_prefix variable
-- Fix release variable's use of %{?dist}
+- Updated rubygems to 1.3.6
 
 * Wed Dec 02 2009 Adam Vollrath <adam@endpoint.com>
 - Updated for release 2009.10

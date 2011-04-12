@@ -15,13 +15,12 @@ Perform the following on a build box as root.
 ## Download REE
 
     cd /tmp
-    wget http://rubyforge.org/frs/download.php/68719/ruby-enterprise-1.8.7-2010.01.tar.gz
-    cp ruby-enterprise-1.8.7-2010.01.tar.gz ~/rpmbuild/SOURCES/
+    wget http://rubyenterpriseedition.googlecode.com/files/ruby-enterprise-1.8.7-2011.03.tar.gz
+    cp ruby-enterprise-1.8.7-2011.03.tar.gz ~/rpmbuild/SOURCES/
 
 ## Get Necessary System-specific Configs
 
-    git clone git://github.com/causes/ree-centos.git
-    cp ree-centos/patches/* ~/rpmbuild/SOURCES/
+    git clone git://github.com/esminc/ree-centos.git
     cp ree-centos/spec/ruby-enterprise.spec ~/rpmbuild/SPECS/
 
 ## Build the RPM
@@ -32,8 +31,8 @@ Perform the following on a build box as root.
 
 The resulting RPMs (one for REE, one for REE's Rubygems) will be:
 
-    ~/rpmbuild/RPMS/x86_64/ruby-enterprise-1.8.7-2.x86_64.rpm
-    ~/rpmbuild/RPMS/x86_64/ruby-enterprise-rubygems-1.3.5-2.x86_64.rpm
+    ~/rpmbuild/RPMS/x86_64/ruby-enterprise-1.8.7-4.x86_64.rpm
+    ~/rpmbuild/RPMS/x86_64/ruby-enterprise-rubygems-1.5.2-4.x86_64.rpm
 
 ## Credits
 
